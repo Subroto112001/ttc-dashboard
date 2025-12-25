@@ -1,5 +1,6 @@
 "use client";
 
+import { Bell, BookImage, LayoutDashboard, Settings, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
@@ -21,7 +22,6 @@ const Sidebar = () => {
         return;
       }
 
-      // We have a token, so prepare to show loading state
       setHasToken(true);
 
       try {
@@ -38,7 +38,6 @@ const Sidebar = () => {
 
         if (response.ok) {
           const data = await response.json();
-          // Adjusting to your API structure (data.data)
           setUser(data.data);
         } else {
           localStorage.removeItem("token");
@@ -55,8 +54,6 @@ const Sidebar = () => {
     fetchUserData();
   }, []);
 
-
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     router.push("/login");
@@ -64,24 +61,19 @@ const Sidebar = () => {
     setHasToken(false);
   };
 
-  // --- Logic Gates ---
-
-  // 1. If not logged in and not loading (Login Page), show nothing
   if (!hasToken && !loading) return null;
 
-  // 2. If logged in but fetching data, show loading in the sidebar area
   if (loading) {
     return (
-      <aside className="w-64 border-r border-gray-200 bg-white min-h-screen flex items-center justify-center">
+      <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex items-center justify-center">
         <div className="flex flex-col items-center gap-2">
-          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs text-gray-500 font-medium">Loading...</span>
         </div>
       </aside>
     );
   }
 
-  // 3. Final safety: if for some reason user data failed but token existed
   if (!user) return null;
 
   const menuItems = [
@@ -89,60 +81,73 @@ const Sidebar = () => {
       id: "dashboard",
       name: "Dashboard",
       path: "/",
-      icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+      icon: <LayoutDashboard />,
     },
     {
       id: "albums",
       name: "Albums",
       path: "/albums",
-      icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+      icon: <BookImage />,
     },
     {
       id: "notice",
       name: "Notice",
       path: "/notice",
-      icon: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
+      icon: <Bell />,
     },
     {
-      id: "imageGallery",
-      name: "Image Gallery",
-      path: "/imagegallery",
-      icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z",
+      id: "management",
+      name: "Management",
+      path: "/management",
+      icon: <Users />,
+    },
+
+    {
+      id: "settings",
+      name: "Settings",
+      path: "/settings",
+      icon: <Settings />,
     },
   ];
 
+  const handleGotoPage = (path, id) => {
+    setActiveMenu(id);
+    router.push(path);
+  };
+
   return (
-    <>
+    <div className="min-h-screen">
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ${
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200
+        shadow-sm lg:shadow-none transition-transform duration-300 ease-in-out
+        flex flex-col
+        ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        {/* Sidebar Header */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 flex items-center justify-center">
-              <svg
-                className="w-5 h-5 text-white"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" />
-              </svg>
-            </div>
-            <span className="font-bold text-sm text-gray-900">PKTC Portal</span>
+        {/* Header */}
+        <div className="h-16 flex items-center gap-3 px-5 border-b border-gray-100">
+          <div className="w-8 h-8 rounded-md bg-blue-600 flex items-center justify-center shadow-sm">
+            <svg
+              className="w-5 h-5 text-white"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3z" />
+            </svg>
           </div>
+          <span className="font-bold text-sm text-gray-900">PKTC Portal</span>
         </div>
 
         {/* User Info */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 border-b border-gray-100 bg-gray-50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 flex items-center justify-center rounded-full">
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center ring-2 ring-white">
               <span className="text-blue-600 font-bold text-sm">
                 {(user.firstName || "U").charAt(0).toUpperCase()}
               </span>
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">
                 {user.firstName || "User"}
               </p>
@@ -151,41 +156,31 @@ const Sidebar = () => {
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <nav className="p-4 space-y-1">
+        {/* Navigation */}
+        <nav className="p-3 space-y-1">
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveMenu(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${
+              onClick={() => handleGotoPage(item.path, item.id)}
+              className={`w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all
+              ${
                 activeMenu === item.id
-                  ? "bg-blue-50 text-blue-600 border-l-4 border-blue-600 -ml-4 pl-4"
-                  : "text-gray-700 hover:bg-gray-50"
+                  ? "bg-blue-100 text-blue-700 shadow-sm"
+                  : "text-gray-700 hover:bg-gray-100"
               }`}
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={item.icon}
-                />
-              </svg>
+             <span>{item.icon}</span>
               {item.name}
             </button>
           ))}
         </nav>
 
-        {/* Logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+        {/* Logout (FIXED) */}
+        <div className="mt-auto p-4 border-t border-gray-100">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium
+            text-red-600 hover:bg-red-100 transition-colors"
           >
             <svg
               className="w-5 h-5"
@@ -205,14 +200,13 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
         />
       )}
-    </>
+    </div>
   );
 };
 
